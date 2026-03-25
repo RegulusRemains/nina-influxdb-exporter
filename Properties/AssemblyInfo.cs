@@ -1,26 +1,26 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // [MANDATORY] The following GUID is used as a unique identifier of the plugin
-[assembly: Guid("3f820a89-a858-47f2-a56d-4e2b296f2364")]
+[assembly: Guid("a1b2c3d4-5678-9abc-def0-112233445566")]
 
 // [MANDATORY] The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("1.1.0.900")]
-[assembly: AssemblyFileVersion("1.1.0.900")]
+[assembly: AssemblyVersion("2.0.0.1")]
+[assembly: AssemblyFileVersion("2.0.0.1")]
 
 // [MANDATORY] The name of your plugin
-[assembly: AssemblyTitle("InfluxDB Exporter")]
+[assembly: AssemblyTitle("InfluxDB Exporter Louie")]
 // [MANDATORY] A short description of your plugin
-[assembly: AssemblyDescription("Exports metrics to an InfluxDB 2.x or InfluxDB Cloud 2 instance")]
+[assembly: AssemblyDescription("Forked InfluxDB Exporter with bug fixes: shared client, safety timestamp guard, DEC distance fix")]
 
 // The following attributes are not required for the plugin per se, but are required by the official manifest meta data
 
 // Your name
-[assembly: AssemblyCompany("Dale Ghent")]
+[assembly: AssemblyCompany("Louie Observatory")]
 // The product name that this plugin is part of
-[assembly: AssemblyProduct("InfluxDB Exporter")]
-[assembly: AssemblyCopyright("Copyright © 2022-2025 Dale Ghent")]
+[assembly: AssemblyProduct("InfluxDB Exporter Louie")]
+[assembly: AssemblyCopyright("Copyright © 2022-2025 Dale Ghent, 2026 Louie Observatory (fork)")]
 
 // The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.2.0.1000")]
@@ -32,33 +32,8 @@ using System.Runtime.InteropServices;
 // The repository where your pluggin is hosted
 [assembly: AssemblyMetadata("Repository", "https://github.com/daleghent/nina-influxdb-exporter")]
 
-// The following attributes are optional for the official manifest meta data
-
-//[Optional] Your plugin homepage - omit if not applicaple
-[assembly: AssemblyMetadata("Homepage", "https://daleghent.com/influxdb-exporter")]
-
 //[Optional] Common tags that quickly describe your plugin
 [assembly: AssemblyMetadata("Tags", "influx, influxdb")]
-
-//[Optional] A link that will show a log of all changes in between your plugin's versions
-[assembly: AssemblyMetadata("ChangelogURL", "https://github.com/daleghent/nina-influxdb-exporter/blob/main/CHANGELOG.md")]
-
-//[Optional] The url to a featured logo that will be displayed in the plugin list next to the name
-[assembly: AssemblyMetadata("FeaturedImageURL", "https://daleghent.github.io/nina-plugins/assets/images/influxdb-logo.png")]
-//[Optional] A url to an example screenshot of your plugin in action
-[assembly: AssemblyMetadata("ScreenshotURL", "")]
-//[Optional] An additional url to an example example screenshot of your plugin in action
-[assembly: AssemblyMetadata("AltScreenshotURL", "")]
-//[Optional] An in-depth description of your plugin
-[assembly: AssemblyMetadata("LongDescription", @"
-InfluxDB Exporter is a NINA plugin that transmits periodic hardware, guiding, and image metrics to an InfluxDB time-series database. From there, the metrics may be graphed using tools such as Grafana or InfluxDB’s own built-in graphing features.
-
-# Examples #
-* [Example Grafana dashboard](https://raw.githubusercontent.com/daleghent/nina-influxdb-exporter/refs/heads/main/Examples/Example%20NINA%20Dashboard.json)
-
-# Getting help #
-
-Help for this plugin may be found in the **#plugin-discussions** channel on the NINA project [Discord chat server](https://discord.gg/nighttime-imaging) or by filing an issue report at this plugin's [Github repository](https://github.com/daleghent/nina-influxdb-exporter/issues).")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from

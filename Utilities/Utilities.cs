@@ -1,4 +1,4 @@
-﻿#region "copyright"
+#region "copyright"
 
 /*
     Copyright 2023 Dale Ghent <daleg@elemental.org>
@@ -11,6 +11,7 @@
 #endregion "copyright"
 
 using DaleGhent.NINA.InfluxDbExporter.Interfaces;
+using InfluxDB.Client;
 using NINA.Core.Utility;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,10 @@ using System.Threading.Tasks;
 namespace DaleGhent.NINA.InfluxDbExporter.Utilities {
 
     public class Utilities {
+
+        private static InfluxDBClient _sharedClient;
+        private static string _cachedConfigKey;
+        private static readonly object _clientLock = new object();
 
         public static bool ConfigCheck(IInfluxDbExporterOptions options) {
             if (options == null) { return false; }
@@ -35,28 +40,56 @@ namespace DaleGhent.NINA.InfluxDbExporter.Utilities {
             return (long)dateTime.ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds;
         }
 
+        private static string BuildConfigKey(IInfluxDbExporterOptions options) {
+            return $"{options.InfluxDbUrl}|{options.InfluxDbToken}|{options.InfluxDbBucket}|{options.InfluxDbOrgId}|{options.TagProfileName}|{options.TagHostname}";
+        }
+
+        private static InfluxDBClient GetOrCreateClient(IInfluxDbExporterOptions options) {
+            var configKey = BuildConfigKey(options);
+
+            lock (_clientLock) {
+                if (_sharedClient != null && _cachedConfigKey == configKey) {
+                    return _sharedClient;
+                }
+
+                _sharedClient?.Dispose();
+
+                var clientOptions = new InfluxDBClientOptions(options.InfluxDbUrl) {
+                    Token = options.InfluxDbToken,
+                    Bucket = options.InfluxDbBucket,
+                    Org = options.InfluxDbOrgId,
+                };
+
+                if (options.TagProfileName) {
+                    clientOptions.AddDefaultTag("profile_name", options.ProfileName);
+                }
+
+                if (options.TagHostname) {
+                    clientOptions.AddDefaultTag("host_name", options.Hostname);
+                }
+
+                _sharedClient = new InfluxDBClient(clientOptions);
+                _cachedConfigKey = configKey;
+
+                return _sharedClient;
+            }
+        }
+
+        public static void DisposeClient() {
+            lock (_clientLock) {
+                _sharedClient?.Dispose();
+                _sharedClient = null;
+                _cachedConfigKey = null;
+            }
+        }
+
         public static async Task<bool> SendPoints(IInfluxDbExporterOptions options, List<InfluxDB.Client.Writes.PointData> points) {
             if (!ConfigCheck(options)) { return false; }
             if (points == null) { return false; }
             if (points.Count == 0) { return false; }
 
-            // Send the points
-            var fullOptions = new InfluxDB.Client.InfluxDBClientOptions(options.InfluxDbUrl) {
-                Token = options.InfluxDbToken,
-                Bucket = options.InfluxDbBucket,
-                Org = options.InfluxDbOrgId,
-            };
-
-            if (options.TagProfileName) {
-                fullOptions.AddDefaultTag("profile_name", options.ProfileName);
-            }
-
-            if (options.TagHostname) {
-                fullOptions.AddDefaultTag("host_name", options.Hostname);
-            }
-
-            using var client = new InfluxDB.Client.InfluxDBClient(fullOptions);
             try {
+                var client = GetOrCreateClient(options);
                 var writeApi = client.GetWriteApiAsync();
                 await writeApi.WritePointsAsync(points);
                 return true;

@@ -15,7 +15,7 @@
         <ResourceDictionary Source="Resources/Converters.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <DataTemplate x:Key="InfluxDB Exporter_Options">
+    <DataTemplate x:Key="InfluxDB Exporter Louie_Options">
         <StackPanel Orientation="Vertical">
             <ContentControl Content="{Binding InfluxDbExporterOptions}" ContentTemplate="{StaticResource InfluxDB_Exporter_Options}" />
         </StackPanel>

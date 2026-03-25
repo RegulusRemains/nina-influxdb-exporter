@@ -64,13 +64,15 @@ namespace DaleGhent.NINA.InfluxDbExporter.Stream {
                 // record the beginning of this new SAFE period
                 BeganSafe = timeStamp;
 
-                // event: the beignning and end of the preceeding UNSAFE period
-                points.Add(PointData
-                    .Measurement(options.MeasurementName)
-                    .Tag("name", unsafePeriodTag)
-                    .Field("text", "Unafe period")
-                    .Field("timeEnd", timeStamp.ToUnixTimeMilliseconds())
-                    .Timestamp(BeganUnsafe, WritePrecision.Ms));
+                // event: the beginning and end of the preceding UNSAFE period
+                if (BeganUnsafe != DateTimeOffset.MinValue) {
+                    points.Add(PointData
+                        .Measurement(options.MeasurementName)
+                        .Tag("name", unsafePeriodTag)
+                        .Field("text", "Unsafe period")
+                        .Field("timeEnd", timeStamp.ToUnixTimeMilliseconds())
+                        .Timestamp(BeganUnsafe, WritePrecision.Ms));
+                }
             }
 
             // Just transitioned to UNSAFE
@@ -78,13 +80,15 @@ namespace DaleGhent.NINA.InfluxDbExporter.Stream {
                 // record the beginning of this new UNSAFE period
                 BeganUnsafe = timeStamp;
 
-                // event: the beignning and end of the preceeding SAFE period
-                points.Add(PointData
-                    .Measurement(options.MeasurementName)
-                    .Tag("name", safePeriodTag)
-                    .Field("text", "Safe period")
-                    .Field("timeEnd", timeStamp.ToUnixTimeMilliseconds())
-                    .Timestamp(BeganSafe, WritePrecision.Ms));
+                // event: the beginning and end of the preceding SAFE period
+                if (BeganSafe != DateTimeOffset.MinValue) {
+                    points.Add(PointData
+                        .Measurement(options.MeasurementName)
+                        .Tag("name", safePeriodTag)
+                        .Field("text", "Safe period")
+                        .Field("timeEnd", timeStamp.ToUnixTimeMilliseconds())
+                        .Timestamp(BeganSafe, WritePrecision.Ms));
+                }
             }
 
             await Utilities.Utilities.SendPoints(options, points);
@@ -121,8 +125,8 @@ namespace DaleGhent.NINA.InfluxDbExporter.Stream {
                 .Field("text", "Safety Monitor disconnected")
                 .Timestamp(timeStamp, WritePrecision.Ms));
 
-            if (IsSafe) {
-                // event: the beignning and end of the existing SAFE period
+            if (IsSafe && BeganSafe != DateTimeOffset.MinValue) {
+                // event: the beginning and end of the existing SAFE period
                 points.Add(PointData
                     .Measurement(options.MeasurementName)
                     .Tag("name", "safety_safe_period")
@@ -131,12 +135,12 @@ namespace DaleGhent.NINA.InfluxDbExporter.Stream {
                     .Timestamp(BeganSafe, WritePrecision.Ms));
             }
 
-            if (!IsSafe) {
-                // event: the beignning and end of the existing UNSAFE period
+            if (!IsSafe && BeganUnsafe != DateTimeOffset.MinValue) {
+                // event: the beginning and end of the existing UNSAFE period
                 points.Add(PointData
                     .Measurement(options.MeasurementName)
                     .Tag("name", "safety_unsafe_period")
-                    .Field("text", "Unafe period")
+                    .Field("text", "Unsafe period")
                     .Field("timeEnd", timeStamp.ToUnixTimeMilliseconds())
                     .Timestamp(BeganUnsafe, WritePrecision.Ms));
             }

@@ -97,6 +97,8 @@ namespace DaleGhent.NINA.InfluxDbExporter {
             MiscData.Dispose();
             ImageMetadata.Dispose();
 
+            Utilities.Utilities.DisposeClient();
+
             cts.Dispose();
 
             return base.Teardown();

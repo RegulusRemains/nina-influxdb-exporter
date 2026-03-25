@@ -11,11 +11,9 @@
 #endregion "copyright"
 
 using DaleGhent.NINA.InfluxDbExporter.Interfaces;
-using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
 using NINA.Core.Interfaces;
-using NINA.Core.Utility;
 using NINA.Equipment.Equipment.MyGuider;
 using NINA.Equipment.Interfaces.Mediator;
 using System;
@@ -135,40 +133,14 @@ namespace DaleGhent.NINA.InfluxDbExporter.Stream {
                 .Timestamp(timeStamp, WritePrecision.Ns));
 
             points.Add(PointData.Measurement("guider_dec_distance")
-                .Field("value", guideStep.RADuration)
+                .Field("value", guideStep.DECDistanceRaw)
                 .Timestamp(timeStamp, WritePrecision.Ns));
 
             points.Add(PointData.Measurement("guider_dec_duration")
                 .Field("value", guideStep.DECDuration)
                 .Timestamp(timeStamp, WritePrecision.Ns));
 
-            // Send the points
-            var fullOptions = new InfluxDBClientOptions(options.InfluxDbUrl) {
-                Token = options.InfluxDbToken,
-                Bucket = options.InfluxDbBucket,
-                Org = options.InfluxDbOrgId,
-            };
-
-            if (options.TagProfileName) {
-                fullOptions.AddDefaultTag("profile_name", options.ProfileName);
-            }
-
-            if (options.TagHostname) {
-                fullOptions.AddDefaultTag("host_name", options.Hostname);
-            }
-
-            if (options.TagEquipmentName) {
-                fullOptions.AddDefaultTag("guider_name", GuiderInfo.Name);
-            }
-
-            using var client = new InfluxDBClient(fullOptions);
-
-            try {
-                var writeApi = client.GetWriteApiAsync();
-                await writeApi.WritePointsAsync(points);
-            } catch (Exception ex) {
-                Logger.Error($"Failed to write guider points: {ex.Message}");
-            }
+            await Utilities.Utilities.SendPoints(options, points);
         }
 
         public void OnGuideEvent(object sender, IGuideStep guideStep) {

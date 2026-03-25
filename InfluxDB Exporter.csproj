@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
@@ -6,7 +6,7 @@
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -21,9 +21,65 @@
     <PackageReference Include="InfluxDB.Client">
       <Version>4.18.0</Version>
     </PackageReference>
-    <PackageReference Include="NINA.Plugin">
-      <Version>3.1.2.9001</Version>
-    </PackageReference>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="NINA.Plugin">
+      <HintPath>..\refs\NINA.Plugin.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Core">
+      <HintPath>..\refs\NINA.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Sequencer">
+      <HintPath>..\refs\NINA.Sequencer.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Equipment">
+      <HintPath>..\refs\NINA.Equipment.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Profile">
+      <HintPath>..\refs\NINA.Profile.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.WPF.Base">
+      <HintPath>..\refs\NINA.WPF.Base.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Image">
+      <HintPath>..\refs\NINA.Image.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Astrometry">
+      <HintPath>..\refs\NINA.Astrometry.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition">
+      <HintPath>..\refs\System.ComponentModel.Composition.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="CommunityToolkit.Mvvm">
+      <HintPath>..\refs\CommunityToolkit.Mvvm.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.CustomControlLibrary">
+      <HintPath>..\refs\NINA.CustomControlLibrary.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Namotion.Reflection">
+      <HintPath>..\refs\Namotion.Reflection.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NJsonSchema">
+      <HintPath>..\refs\NJsonSchema.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
@@ -39,9 +95,6 @@
     </None>
   </ItemGroup>
   <PropertyGroup>
-    <AssemblyName>DaleGhent.NINA.InfluxDbExporter</AssemblyName>
+    <AssemblyName>Louie.NINA.InfluxDbExporter</AssemblyName>
   </PropertyGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if not exist &quot;%25localappdata%25\NINA\Plugin\3.0.0\$(MSBuildProjectName)&quot; (&#xD;&#xA;    echo &quot;Creating $(PlatformName) Plugins $(MSBuildProjectName) folder&quot;&#xD;&#xA;    mkdir  &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;echo &quot;Copying $(TargetFileName)&quot;&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot; /h/i/c/k/e/r/y&#xD;&#xA;xcopy &quot;$(TargetDir)InfluxDB.Client.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot; /h/i/c/k/e/r/y&#xD;&#xA;xcopy &quot;$(TargetDir)InfluxDB.Client.Core.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot; /h/i/c/k/e/r/y&#xD;&#xA;xcopy &quot;$(TargetDir)JsonSubTypes.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot; /h/i/c/k/e/r/y&#xD;&#xA;xcopy &quot;$(TargetDir)System.Reactive.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot; /h/i/c/k/e/r/y&#xD;&#xA;xcopy &quot;$(TargetDir)CsvHelper.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot; /h/i/c/k/e/r/y&#xD;&#xA;xcopy &quot;$(TargetDir)NodaTime.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot; /h/i/c/k/e/r/y&#xD;&#xA;xcopy &quot;$(TargetDir)NodaTime.Serialization.JsonNet.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot; /h/i/c/k/e/r/y&#xD;&#xA;xcopy &quot;$(TargetDir)RestSharp.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\$(MSBuildProjectName)&quot; /h/i/c/k/e/r/y" />
-  </Target>
 </Project>
