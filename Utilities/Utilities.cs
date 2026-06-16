@@ -83,12 +83,36 @@ namespace DaleGhent.NINA.InfluxDbExporter.Utilities {
             }
         }
 
-        public static async Task<bool> SendPoints(IInfluxDbExporterOptions options, List<InfluxDB.Client.Writes.PointData> points) {
+        public static Task<bool> SendPoints(IInfluxDbExporterOptions options, List<InfluxDB.Client.Writes.PointData> points) {
+            return SendPoints(options, points, null);
+        }
+
+        // Per-write tags (e.g. equipment names, image metadata) are applied directly to each
+        // point rather than as client default tags. This lets every stream class reuse the shared
+        // pooled client+write_api instead of constructing a fresh InfluxDBClient (TCP + auth +
+        // dispose) per write — fixing the 1-3s overhead on equipment events (#64). In InfluxDB
+        // line protocol a per-point tag and a client default tag are equivalent, so this is a
+        // behavior-preserving substitution for the previous per-equipment default-tagged clients.
+        public static async Task<bool> SendPoints(IInfluxDbExporterOptions options, List<InfluxDB.Client.Writes.PointData> points, IEnumerable<KeyValuePair<string, string>> additionalTags) {
             if (!ConfigCheck(options)) { return false; }
             if (points == null) { return false; }
             if (points.Count == 0) { return false; }
 
             try {
+                if (additionalTags != null) {
+                    for (int i = 0; i < points.Count; i++) {
+                        var point = points[i];
+
+                        foreach (var tag in additionalTags) {
+                            if (string.IsNullOrEmpty(tag.Key) || string.IsNullOrEmpty(tag.Value)) { continue; }
+                            // PointData is immutable; Tag() returns a new instance.
+                            point = point.Tag(tag.Key, tag.Value);
+                        }
+
+                        points[i] = point;
+                    }
+                }
+
                 var client = GetOrCreateClient(options);
                 var writeApi = client.GetWriteApiAsync();
                 await writeApi.WritePointsAsync(points);
