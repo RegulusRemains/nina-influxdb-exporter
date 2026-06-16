@@ -11,7 +11,6 @@
 #endregion "copyright"
 
 using DaleGhent.NINA.InfluxDbExporter.Interfaces;
-using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
 using NINA.Core.Utility;
@@ -81,31 +80,15 @@ namespace DaleGhent.NINA.InfluxDbExporter.Stream {
                 }
             }
 
-            // Send the points
-            var fullOptions = new InfluxDBClientOptions(options.InfluxDbUrl) {
-                Token = options.InfluxDbToken,
-            };
-
-            if (options.TagProfileName) {
-                fullOptions.AddDefaultTag("profile_name", options.ProfileName);
-            }
-
-            if (options.TagHostname) {
-                fullOptions.AddDefaultTag("host_name", options.Hostname);
-            }
+            // Send the points via the shared client. profile_name/host_name are applied as
+            // default tags by the shared client; equipment-specific tags ride along per-point.
+            var additionalTags = new List<KeyValuePair<string, string>>();
 
             if (options.TagEquipmentName) {
-                fullOptions.AddDefaultTag("camera_name", CameraInfo.Name);
+                additionalTags.Add(new KeyValuePair<string, string>("camera_name", CameraInfo.Name));
             }
 
-            using var client = new InfluxDBClient(fullOptions);
-
-            try {
-                var writeApi = client.GetWriteApiAsync();
-                await writeApi.WritePointsAsync(points, options.InfluxDbBucket, options.InfluxDbOrgId);
-            } catch (Exception ex) {
-                Logger.Error($"Failed to write camera points: {ex.Message}");
-            }
+            await Utilities.Utilities.SendPoints(options, points, additionalTags);
         }
 
         private CameraInfo CameraInfo { get; set; }
